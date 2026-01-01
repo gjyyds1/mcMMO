@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.Predicate;
+import net.kyori.adventure.text.Component;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -35,20 +36,20 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class ItemUtils {
-    // Reflection for setItemName only available in newer APIs
-    private static final Method setItemName;
+    // Use custom name if available
+    private static final Method customName;
 
     static {
-        setItemName = getSetItemName();
+        customName = getCustomNameMethod();
     }
 
     private ItemUtils() {
         // private constructor
     }
 
-    private static Method getSetItemName() {
+    private static Method getCustomNameMethod() {
         try {
-            return ItemMeta.class.getMethod("setItemName", String.class);
+            return ItemMeta.class.getMethod("customName", Component.class);
         } catch (NoSuchMethodException e) {
             return null;
         }
@@ -60,17 +61,17 @@ public final class ItemUtils {
      * @param itemMeta The item meta to set the name on
      * @param name The name to set
      */
-    public static void setItemName(ItemMeta itemMeta, String name) {
-        if (setItemName != null) {
+    public static void customName(ItemMeta itemMeta, Component name, String fallbackName) {
+        if (customName != null) {
             setItemNameModern(itemMeta, name);
         } else {
-            itemMeta.setDisplayName(ChatColor.RESET + name);
+            itemMeta.setDisplayName(ChatColor.RESET + fallbackName);
         }
     }
 
-    private static void setItemNameModern(ItemMeta itemMeta, String name) {
+    private static void setItemNameModern(ItemMeta itemMeta, Component name) {
         try {
-            setItemName.invoke(itemMeta, name);
+            customName.invoke(itemMeta, name);
         } catch (IllegalAccessException | InvocationTargetException e) {
             mcMMO.p.getLogger().severe("Failed to set item name: " + e.getMessage());
             throw new RuntimeException(e);
@@ -163,20 +164,6 @@ public final class ItemUtils {
                 player.getInventory().setItemInOffHand(new ItemStack(Material.AIR));
             }
         }
-    }
-
-    // TODO: Unit tests
-    public static boolean isCrossbow(@NotNull ItemStack item) {
-        return mcMMO.getMaterialMapStore().isCrossbow(item.getType().getKey().getKey());
-    }
-
-    // TODO: Unit tests
-    public static boolean isTrident(@NotNull ItemStack item) {
-        return mcMMO.getMaterialMapStore().isTrident(item.getType().getKey().getKey());
-    }
-
-    public static boolean isMace(@NotNull ItemStack item) {
-        return mcMMO.getMaterialMapStore().isMace(item.getType().getKey().getKey());
     }
 
     public static boolean hasItemInEitherHand(@NotNull Player player, Material material) {
@@ -273,6 +260,46 @@ public final class ItemUtils {
         }
 
         return null;
+    }
+
+    /**
+     * Checks if the item is a crossbow.
+     *
+     * @param item Item to check
+     * @return true if the item is a crossbow, false otherwise
+     */
+    public static boolean isCrossbow(@NotNull ItemStack item) {
+        return mcMMO.getMaterialMapStore().isCrossbow(item.getType().getKey().getKey());
+    }
+
+    /**
+     * Checks if the item is a trident.
+     *
+     * @param item Item to check
+     * @return true if the item is a trident, false otherwise
+     */
+    public static boolean isTrident(@NotNull ItemStack item) {
+        return mcMMO.getMaterialMapStore().isTrident(item.getType().getKey().getKey());
+    }
+
+    /**
+     * Checks if the item is a mace.
+     *
+     * @param item Item to check
+     * @return true if the item is a mace, false otherwise
+     */
+    public static boolean isMace(@NotNull ItemStack item) {
+        return mcMMO.getMaterialMapStore().isMace(item.getType().getKey().getKey());
+    }
+
+    /**
+     * Checks if the item is a spear.
+     * @param item Item to check
+     *
+     * @return true if the item is a spear, false otherwise
+     */
+    public static boolean isSpear(@NotNull ItemStack item) {
+        return mcMMO.getMaterialMapStore().isSpear(item.getType().getKey().getKey());
     }
 
     /**
@@ -379,6 +406,10 @@ public final class ItemUtils {
         return mcMMO.getMaterialMapStore().isIronArmor(item.getType().getKey().getKey());
     }
 
+    public static boolean isCopperArmor(ItemStack item) {
+        return mcMMO.getMaterialMapStore().isCopperArmor(item.getType().getKey().getKey());
+    }
+
     /**
      * Checks to see if an item is a diamond armor piece.
      *
@@ -449,6 +480,10 @@ public final class ItemUtils {
 
     public static boolean isPrismarineTool(ItemStack item) {
         return mcMMO.getMaterialMapStore().isPrismarineTool(item.getType().getKey().getKey());
+    }
+
+    public static boolean isCopperTool(ItemStack item) {
+        return mcMMO.getMaterialMapStore().isCopperTool(item.getType().getKey().getKey());
     }
 
     /**

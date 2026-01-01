@@ -424,10 +424,6 @@ public class GeneralConfig extends BukkitConfig {
         return config.getBoolean("MySQL.Server.SSL", true);
     }
 
-    public boolean getMySQLDebug() {
-        return config.getBoolean("MySQL.Debug", false);
-    }
-
     public boolean getMySQLPublicKeyRetrieval() {
         return config.getBoolean("MySQL.Server.allowPublicKeyRetrieval", true);
     }
@@ -872,8 +868,8 @@ public class GeneralConfig extends BukkitConfig {
     }
 
     /* Unarmed */
-    public boolean getUnarmedBlockCrackerSmoothbrickToCracked() {
-        return config.getBoolean("Skills.Unarmed.Block_Cracker.SmoothBrick_To_CrackedBrick", true);
+    public boolean isBlockCrackerAllowed() {
+        return config.getBoolean("Skills.Unarmed.Block_Cracker.Allow_Block_Cracker", true);
     }
 
     public boolean getUnarmedItemPickupDisabled() {
