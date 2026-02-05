@@ -1278,4 +1278,5 @@ public class McMMOPlayer implements Identified {
     public void setChatMode(@NotNull ChatChannel chatChannel) {
         this.chatChannel = chatChannel;
     }
+
 }
