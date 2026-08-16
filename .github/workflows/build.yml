@@ -12,6 +12,7 @@ permissions:
 jobs:
   build:
     name: Build and Release
+    if: "!contains(github.event.head_commit.message, '[ci-skip]')"
     runs-on: ubuntu-latest
 
     steps:
@@ -40,6 +41,7 @@ jobs:
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Create GitHub Release
+        if: "!contains(github.event.head_commit.message, '[release-skip]')"
         env:
           GH_TOKEN: ${{ github.token }}
           COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
