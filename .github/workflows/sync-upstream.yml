@@ -1,0 +1,54 @@
+name: Sync Upstream
+
+on:
+  schedule:
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    name: Sync Upstream
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          token: ${{ github.token }}
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Add upstream
+        run: |
+          git remote add upstream https://github.com/mcMMO-Dev/mcMMO.git
+
+      - name: Fetch upstream
+        run: |
+          git fetch upstream master
+
+      - name: Check for updates
+        id: check
+        run: |
+          if git diff --quiet HEAD upstream/master; then
+            echo "updated=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "updated=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Rebase onto upstream
+        if: steps.check.outputs.updated == 'true'
+        run: |
+          git rebase upstream/master
+
+      - name: Push changes
+        if: steps.check.outputs.updated == 'true'
+        run: |
+          git push --force-with-lease origin master
+          
